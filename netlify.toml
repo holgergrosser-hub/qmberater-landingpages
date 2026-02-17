@@ -1,7 +1,6 @@
 [build]
   publish = "public"
 
-# XML und TXT Dateien richtig ausliefern
 [[headers]]
   for = "/sitemap.xml"
   [headers.values]
@@ -11,9 +10,3 @@
   for = "/robots.txt"
   [headers.values]
     Content-Type = "text/plain; charset=utf-8"
-
-# Redirect-Regeln
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 404
