@@ -1,0 +1,41 @@
+{
+  "company": "QM-Guru / Holger Grosser QM Dienstleistungen",
+  "domain": "qmberater.info",
+  "main_site": "https://qm-guru.de",
+  "logo_text": "QM-Guru",
+  "expert": {
+    "name": "Holger Grosser",
+    "title": "Ihr QM-Berater seit 1994",
+    "image": "/images/holger-grosser.jpg",
+    "experience": "30+ Jahre",
+    "audits": "1.000+",
+    "rating": "4.9/5",
+    "badges": ["BAFA-zugelassener Berater"]
+  },
+  "contact": {
+    "phone": "0911-49522541",
+    "phone_link": "tel:091149522541",
+    "whatsapp": "0157-92316673",
+    "whatsapp_link": "https://wa.me/4915792316673",
+    "email": "info@qm-guru.de",
+    "address": "Simonstr. 14, 90763 Fürth"
+  },
+  "ctas": {
+    "primary": "Beratungstermin vereinbaren",
+    "primary_link": "https://calendly.com/grosser-qmguru/termin-qm-system-iso-9001",
+    "secondary": "WhatsApp-Beratung",
+    "secondary_link": "https://wa.me/4915792316673?text=Hallo%20Herr%20Grosser,%20ich%20benötige%20eine%20ISO%209001%20Beratung",
+    "quote": "Kostenlose Beratung",
+    "quote_link": "https://angebote.qm-guru.de/"
+  },
+  "services": {
+    "main": "ISO 9001 Beratung & Vorbereitung",
+    "duration": "2-3 Monate",
+    "funding": "Bis zu 1.750€ BAFA-Förderung",
+    "delivery": "100% Online-Beratung"
+  },
+  "colors": {
+    "primary": "blue",
+    "secondary": "green"
+  }
+}
