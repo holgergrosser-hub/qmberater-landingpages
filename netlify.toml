@@ -1,7 +1,7 @@
 [build]
   publish = "public"
 
-# Static files NICHT redirecten
+# Statische Dateien explizit als statisch markieren
 [[redirects]]
   from = "/sitemap.xml"
   to = "/sitemap.xml"
@@ -14,22 +14,7 @@
   status = 200
   force = true
 
-# HTML files mit .html Extension servieren
-[[redirects]]
-  from = "/*"
-  to = "/:splat.html"
-  status = 200
-  force = false
-  conditions = {accept = ["text/html"]}
-
-# Fallback für alle anderen Requests
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
-
-# Headers für statische Dateien
+# Headers für SEO
 [[headers]]
   for = "/sitemap.xml"
   [headers.values]
@@ -42,8 +27,27 @@
     Content-Type = "text/plain; charset=utf-8"
     Cache-Control = "public, max-age=3600"
 
-# HTML Headers
+# HTML Seiten ohne Cache
 [[headers]]
   for = "/*.html"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+```
+
+4. **Commit:** "Fix: Add redirects for sitemap.xml"
+
+---
+
+### Schritt 2: Netlify Deploy abwarten
+
+- Netlify erkennt den Commit automatisch
+- Build startet (2-3 Minuten)
+- Dann ist die Site live mit neuer Config!
+
+---
+
+## 🧪 NACH DEM DEPLOY TESTEN:
+
+### Test 1: Browser
+```
+https://landing.qmberater.info/sitemap.xml
