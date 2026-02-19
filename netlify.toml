@@ -34,20 +34,4 @@
     Cache-Control = "public, max-age=0, must-revalidate"
 ```
 
-4. **Commit:** "Fix: Add redirects for sitemap.xml"
 
----
-
-### Schritt 2: Netlify Deploy abwarten
-
-- Netlify erkennt den Commit automatisch
-- Build startet (2-3 Minuten)
-- Dann ist die Site live mit neuer Config!
-
----
-
-## 🧪 NACH DEM DEPLOY TESTEN:
-
-### Test 1: Browser
-```
-https://landing.qmberater.info/sitemap.xml
