@@ -1,402 +1,654 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-QMBerater Landing Pages Generator
-Generiert automatisch alle Branchen-Seiten aus dem Template
+QMBerater Landing Pages Generator  ·  Version 2  (18.08.2026)
+
+Was sich gegenüber Version 1 geändert hat und WARUM:
+
+1. INHALT STATT TEXTBAUSTEIN
+   V1 hat produktion.html kopiert und nur den Branchennamen ersetzt. Ergebnis:
+   acht Seiten mit 96 % identischem Text – aus Google-Sicht Doorway Pages.
+   V2 baut jede Seite aus echten, branchenspezifischen Inhalten in
+   branchen_content.py auf (Normtabelle, Nachweise, FAQ, Marktkontext).
+
+2. RECHTSSEITEN
+   Die Footer-Links zeigten auf qmberater.info/Sonstiges/impressum/ – dieser
+   Pfad läuft in die Domain-Weiterleitung und landet auf qm-guru.de/ (Startseite).
+   Es war also weder Impressum noch Datenschutz erreichbar. Jetzt: direkte Links
+   auf die aktuellen Rechtsseiten der Hauptdomain, mit rel="nofollow".
+
+3. GOOGLE FONTS ENTFERNT
+   Inter wurde von fonts.googleapis.com nachgeladen – das ist in Deutschland
+   bereits abgemahnt worden. Ersetzt durch einen System-Font-Stack (optisch
+   nahezu identisch, keine externe Anfrage).
+
+4. BEWERTUNGEN
+   Die anonymen Zitate wurden je Branche ausgetauscht und wirkten damit generiert.
+   Werbeaussagen müssen belegbar sein. V2 verlinkt stattdessen auf die echten
+   Google-Bewertungen und die Referenzseite der Hauptdomain. Wenn echte,
+   freigegebene Kundenzitate vorliegen: unten in ECHTE_STIMMEN eintragen.
+
+5. SEO-GRUNDAUSSTATTUNG
+   canonical, og:, twitter:, JSON-LD (Service + FAQPage + BreadcrumbList),
+   robots-Meta. In V1 fehlte all das vollständig – Google hatte deshalb
+   /it-dienstleistung UND /it-dienstleistung.html im Index.
+
+6. UMZUGSFÄHIG
+   SITE_BASE unten umstellen, neu generieren, fertig. Alle internen Links und
+   Asset-Pfade sind relativ und funktionieren unter jedem Pfad-Präfix.
+
+Aufruf:  python3 generate_all_pages.py
 """
 
 import json
 from pathlib import Path
-import re
 
-# Branchen-Konfiguration
-BRANCHEN = [
-    {
-        'slug': 'produktion',
-        'name': 'Produktion',
-        'name_full': 'Produktionsunternehmen',
-        'beschreibung': 'Fertigung, Maschinenbau, Metallverarbeitung, Kunststoffverarbeitung',
-        'prozesse': 'Fertigung, Qualitätskontrolle, Lieferkettenmanagement, Lagerverwaltung, Wartung',
-        'risiken': 'Produktionsausfälle, Qualitätsmängel, Lieferengpässe, Compliance-Verstöße',
-        'ziele': 'Fehlerquote reduzieren, Produktivität steigern, Ausschussrate minimieren',
-        'testimonial': 'Professionell, kompetent und effizient. Die Online-Beratung war flexibel und hat perfekt funktioniert!',
-        'testimonial_author': 'Geschäftsführer, Maschinenbau',
-        'beispiel_kunden': '90 Produktionsunternehmen erfolgreich beraten'
-    },
-    {
-        'slug': 'dienstleistung',
-        'name': 'Dienstleistung',
-        'name_full': 'Dienstleistungsunternehmen',
-        'beschreibung': 'Beratung, Finanzdienstleistung, Facility Management, Professional Services',
-        'prozesse': 'Kundenmanagement, Projektabwicklung, Qualitätssicherung, Ressourcenplanung',
-        'risiken': 'Kundenzufriedenheit, Terminverzug, Ressourcenengpässe, Compliance',
-        'ziele': 'Kundenzufriedenheit steigern, Prozesseffizienz erhöhen, Fehlerquote senken',
-        'testimonial': 'Herr Grosser versteht unser Geschäft und die Besonderheiten von Dienstleistungen. Top Beratung!',
-        'testimonial_author': 'Geschäftsführerin, Unternehmensberatung',
-        'beispiel_kunden': '120 Dienstleister erfolgreich beraten'
-    },
-    {
-        'slug': 'it-dienstleistung',
-        'name': 'IT-Dienstleistung',
-        'name_full': 'IT-Dienstleistungsunternehmen',
-        'beschreibung': 'IT-Support, Managed Services, Cloud-Services, IT-Consulting',
-        'prozesse': 'Service-Management, Incident-Management, Change-Management, SLA-Management',
-        'risiken': 'Systemausfälle, Datensicherheit, SLA-Verletzungen, Compliance',
-        'ziele': 'Verfügbarkeit erhöhen, Response-Time reduzieren, Kundenzufriedenheit steigern',
-        'testimonial': 'Pragmatische Beratung ohne unnötigen Overhead. Herr Grosser versteht IT-Prozesse!',
-        'testimonial_author': 'QM-Beauftragter, IT-Systemhaus',
-        'beispiel_kunden': '45 IT-Dienstleister erfolgreich beraten'
-    },
-    {
-        'slug': 'it-softwareentwicklung',
-        'name': 'IT/Softwareentwicklung',
-        'name_full': 'Software-Entwicklungsunternehmen',
-        'beschreibung': 'Softwareentwicklung, App-Entwicklung, SaaS, Individualsoftware',
-        'prozesse': 'Requirements Engineering, Entwicklung, Testing, Deployment, Support',
-        'risiken': 'Projektlaufzeit, Qualitätsmängel, Security-Issues, Ressourcenplanung',
-        'ziele': 'Code-Qualität erhöhen, Time-to-Market reduzieren, Bug-Rate senken',
-        'testimonial': 'Endlich jemand, der agile Entwicklung UND ISO 9001 zusammenbringt. Sehr hilfreich!',
-        'testimonial_author': 'CTO, Software-Startup',
-        'beispiel_kunden': '38 Software-Firmen erfolgreich beraten'
-    },
-    {
-        'slug': 'sicherheitsdienstleistung',
-        'name': 'Sicherheitsdienstleistung',
-        'name_full': 'Sicherheitsdienstleistungsunternehmen',
-        'beschreibung': 'Objektschutz, Werkschutz, Veranstaltungsschutz, Sicherheitsberatung',
-        'prozesse': 'Einsatzplanung, Mitarbeiterschulung, Incident-Management, Qualitätskontrolle',
-        'risiken': 'Personalengpässe, Compliance, Haftung, Qualifikation',
-        'ziele': 'Mitarbeiterqualifikation sichern, Vorfälle minimieren, Kundenzufriedenheit steigern',
-        'testimonial': 'Die Beratung war praxisnah und direkt umsetzbar. Perfekt für unsere Branche!',
-        'testimonial_author': 'Geschäftsführer, Sicherheitsdienst',
-        'beispiel_kunden': '25 Sicherheitsdienste erfolgreich beraten'
-    },
-    # NEU: Reinigung
-    {
-        'slug': 'reinigung',
-        'name': 'Reinigung',
-        'name_full': 'Reinigungsunternehmen',
-        'beschreibung': 'Gebäudereinigung, Industriereinigung, Büroreinigung, Facility Services',
-        'prozesse': 'Auftragsplanung, Personalmanagement, Qualitätskontrolle, Material-Management',
-        'risiken': 'Personalengpässe, Qualitätsmängel, Terminverzug, Compliance (Arbeitsschutz)',
-        'ziele': 'Kundenzufriedenheit steigern, Effizienz erhöhen, Mitarbeiterbindung verbessern',
-        'testimonial': 'Die Beratung hat unsere Prozesse deutlich verbessert. Herr Grosser kennt die Herausforderungen der Branche!',
-        'testimonial_author': 'Geschäftsführer, Gebäudereinigung',
-        'beispiel_kunden': '35 Reinigungsunternehmen erfolgreich beraten'
-    },
-    # NEU: Maschinenbau
-    {
-        'slug': 'maschinenbau',
-        'name': 'Maschinenbau',
-        'name_full': 'Maschinenbauunternehmen',
-        'beschreibung': 'Anlagenbau, Sondermaschinenbau, Automatisierungstechnik, Werkzeugbau',
-        'prozesse': 'Konstruktion, Fertigung, Montage, Inbetriebnahme, After-Sales-Service',
-        'risiken': 'Technische Mängel, Terminverzug, Kostensteigerung, Sicherheitsanforderungen',
-        'ziele': 'Produktqualität sichern, Durchlaufzeiten reduzieren, Nacharbeiten minimieren',
-        'testimonial': 'Herr Grosser versteht die technischen Anforderungen im Maschinenbau. Pragmatische und zielführende Beratung!',
-        'testimonial_author': 'Technischer Leiter, Sondermaschinenbau',
-        'beispiel_kunden': '65 Maschinenbauunternehmen erfolgreich beraten'
-    },
-    # NEU: Handel
-    {
-        'slug': 'handel',
-        'name': 'Handel',
-        'name_full': 'Handelsunternehmen',
-        'beschreibung': 'Großhandel, Einzelhandel, E-Commerce, Distributoren',
-        'prozesse': 'Beschaffung, Lagerhaltung, Vertrieb, Reklamationsmanagement, Kundenservice',
-        'risiken': 'Lieferantenausfall, Qualitätsmängel, Lieferverzug, Kundenreklamationen',
-        'ziele': 'Lieferantenqualität sichern, Lagerumschlag optimieren, Kundenzufriedenheit steigern',
-        'testimonial': 'Endlich eine Beratung, die unsere Handelslogik versteht. Keine theoretischen Konzepte, sondern praktische Lösungen!',
-        'testimonial_author': 'Geschäftsführerin, Großhandel',
-        'beispiel_kunden': '55 Handelsunternehmen erfolgreich beraten'
-    }
+from branchen_content import BRANCHEN
+
+# --------------------------------------------------------------------------- #
+# KONFIGURATION
+# --------------------------------------------------------------------------- #
+
+# Aktuell:  https://landing.qmberater.info
+# Nach dem Umzug auf:  https://qm-guru.de/iso-9001-branchen
+SITE_BASE = 'https://landing.qmberater.info'
+
+HAUPTDOMAIN   = 'https://qm-guru.de'
+IMPRESSUM     = 'https://qm-guru.de/impressum/'
+DATENSCHUTZ   = 'https://qm-guru.de/impressum/datenschutzerklarung/'
+REFERENZEN    = 'https://qm-guru.de/5-stern-kundenbewertungen/'
+KOSTENRECHNER = 'https://qm-guru.de/iso-9001-kosten-rechner/'
+CALENDLY      = 'https://calendly.com/grosser-qmguru/termin-qm-system-iso-9001'
+WHATSAPP      = 'https://wa.me/4915792316673'
+GOOGLE_MAPS   = 'https://www.google.com/maps/place/Holger+Grosser+QM+Dienstleistungen'
+TELEFON_LINK  = 'tel:091149522541'
+TELEFON       = '0911-49522541'
+JAHR          = 2026
+
+# Echte, freigegebene Kundenstimmen hier eintragen – sonst bleibt der Block leer
+# und es wird nur auf die Google-Bewertungen verlinkt.
+# Format: (Zitat, Nennung, Branchen-Slug oder None für "auf allen Seiten")
+ECHTE_STIMMEN = [
+    # ('Zitat ...', 'Firma XY GmbH, Nürnberg', 'produktion'),
 ]
 
-def generate_page(branche, template_path):
-    """Generiert eine Branchen-Seite aus dem Template"""
-    
-    # Template laden
-    with open(template_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    # Ersetzungen durchführen
-    replacements = {
-        # Title und Meta
-        'ISO 9001 Beratung für Produktion': f"ISO 9001 Beratung für {branche['name']}",
-        'ISO 9001-Beratung speziell für Produktionsunternehmen': f"ISO 9001-Beratung speziell für {branche['name_full']}",
-        
-        # Hero Section
-        'SPEZIALISIERT AUF PRODUKTION': f"SPEZIALISIERT AUF {branche['name'].upper()}",
-        'Produktionsunternehmen': branche['name_full'],
-        
-        # Testimonials
-        '"Professionell, kompetent und effizient. Die Online-Beratung war flexibel und hat perfekt funktioniert!"': f'"{branche["testimonial"]}"',
-        '— Geschäftsführer, Maschinenbau': f"— {branche['testimonial_author']}",
-        
-        # Weitere Testimonials im Reviews-Bereich anpassen
-        '— Geschäftsführer, Produktion': f"— {branche['testimonial_author']}",
-    }
-    
-    for old, new in replacements.items():
-        content = content.replace(old, new)
-    
-    return content
+# Fragen, die in praktisch jeder Beratung kommen – die Antworten stammen aus der
+# realen Beratungspraxis (Wissensdatenbank, FAQ-Tab), generalisiert und ohne
+# Kundennamen. Wird NUR auf der Übersichtsseite ausgegeben, damit die
+# Branchenseiten sich nicht wieder angleichen.
+ALLGEMEINE_FAQ = [
+    ('Müssen wir die ISO-9001-Norm kaufen und durchlesen?',
+     'Nein, das bringt Ihnen nichts. Die Norm ist so verklausuliert, dass sie zu lesen wenig Sinn ergibt. '
+     'Im Audit sagen Sie einfach: die Norm liegt beim Berater. Ich habe sie, ich kenne sie, und im Zweifel '
+     'schieben Sie die Frage auf mich. Ihre Aufgabe ist es, das umzusetzen, was wir gemeinsam beschrieben haben.'),
+    ('Wie erstellen wir die Risikoanalyse, ohne uns Risiken auszudenken?',
+     'Sie müssen keine neuen Risiken erfinden. Wir nehmen Ihre Projekte und Investitionen der letzten rund '
+     'vier Jahre – alles über etwa 2.000 Euro: neue Webseite, EDV-Ausstattung, Maschine, Umbau. Sie kaufen '
+     'sich ja nichts ohne Grund. Hinter jeder dieser Entscheidungen steckt ein Nutzen und damit auch ein '
+     'Risiko. Daraus wird die Risikobewertung.'),
+    ('Wie messen wir Kundenzufriedenheit, wenn wir keine Fragebögen verschicken?',
+     'Das simpelste Verfahren: Selbsteinschätzung mit Schulnoten. Nehmen Sie Ihre Hauptkunden – vier, fünf '
+     'reichen – und bewerten Sie nach Kriterien wie Flexibilität, Zuverlässigkeit und Termintreue. '
+     'Wir müssen keine Fragebögen an Großkonzerne schicken, damit das anerkannt wird.'),
+    ('Müssen wir im Audit alle Normpunkte auswendig können?',
+     'Auf keinen Fall auswendig lernen. Alles, was Sie auswendig aufsagen, klingt unnatürlich. Sie haben eine '
+     'Liste als Spickzettel, damit Sie wissen, wo Sie nachschauen. Und ich bin beim Audit dabei und beantworte '
+     'die Normfragen direkt, bevor Sie anfangen zu blättern.'),
+    ('Können wir die Zertifizierung auf einen Teil der Firma begrenzen?',
+     'In der Regel nicht – die ISO 9001 gilt für das ganze Unternehmen, so handhaben es die meisten '
+     'Zertifizierungsstellen. Was Sie entscheiden können, ist die Formulierung des Geltungsbereichs: '
+     'Was soll am Ende auf dem Zertifikat stehen, und was wollen Sie damit gegenüber Ihren Kunden zeigen?'),
+    ('Was passiert, wenn im Audit etwas fehlt?',
+     'Dann reichen wir es nach, das ist kein Drama. Wir stellen vor, was sich geändert hat, der Auditor stellt '
+     'seine Fragen, wir haben die Nachweise. Wenn Hinweise oder Anregungen kommen, arbeiten wir die ein. '
+     'Das ist der Normalfall, nicht die Ausnahme.'),
+    ('Wie viel Aufwand ist das dauerhaft, nach der Zertifizierung?',
+     'Einmal im Jahr durchgehen und aktualisieren – das sind drei, vier, fünf Stunden, dann ist das Thema '
+     'wieder erledigt. Wer es drei, vier Jahre liegen lässt, fängt dagegen praktisch von vorne an.'),
+]
 
-def generate_index_page(branchen):
-    """Generiert die Index/Übersichtsseite"""
-    
-    html = '''<!DOCTYPE html>
+FONT_STACK = ('-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, '
+              '"Helvetica Neue", Arial, sans-serif')
+
+STYLE = ('<style>\n'
+         '  body{font-family:' + FONT_STACK + ';}\n'
+         '  .prose-td{vertical-align:top;}\n'
+         '</style>')
+
+
+# --------------------------------------------------------------------------- #
+# BAUSTEINE
+# --------------------------------------------------------------------------- #
+
+def esc(t):
+    return (t.replace('&', '&amp;').replace('<', '&lt;')
+             .replace('>', '&gt;').replace('"', '&quot;'))
+
+
+def head(title, desc, url, extra_schema=None):
+    schema_html = ''
+    for s in (extra_schema or []):
+        schema_html += ('    <script type="application/ld+json">'
+                        + json.dumps(s, ensure_ascii=False) + '</script>\n')
+    return f'''<!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISO 9001 Beratung für alle Branchen | QM-Guru Holger Grosser</title>
-    <meta name="description" content="Professionelle ISO 9001-Beratung für Produktion, Dienstleistung, IT und mehr. 30+ Jahre Erfahrung, BAFA-Förderung bis 1.750€. Jetzt beraten lassen!">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Inter', sans-serif; }</style>
-</head>
-<body>
-    
-    <!-- Header -->
+    <title>{esc(title)}</title>
+    <meta name="description" content="{esc(desc)}">
+    <link rel="canonical" href="{url}">
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <meta name="author" content="Holger Grosser">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="de_DE">
+    <meta property="og:site_name" content="QM-Guru · Holger Grosser">
+    <meta property="og:title" content="{esc(title)}">
+    <meta property="og:description" content="{esc(desc)}">
+    <meta property="og:url" content="{url}">
+    <meta property="og:image" content="{SITE_BASE}/images/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{esc(title)}">
+    <meta name="twitter:description" content="{esc(desc)}">
+    <meta name="twitter:image" content="{SITE_BASE}/images/og-image.jpg">
+    <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="assets/tailwind.css">
+{STYLE}
+{schema_html}</head>
+<body class="bg-white text-gray-900">
+'''
+
+
+def header_html():
+    return f'''
     <header class="bg-white border-b sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 py-4">
-            <div class="flex justify-between items-center">
-                <a href="https://qm-guru.de" class="text-2xl font-bold text-blue-600">QM-Guru</a>
-                <div class="flex gap-4">
-                    <a href="https://wa.me/4915792316673" class="text-green-600 hover:text-green-700">💬 WhatsApp</a>
-                    <a href="https://calendly.com/grosser-qmguru/termin-qm-system-iso-9001" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">Termin buchen</a>
-                </div>
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="{HAUPTDOMAIN}" class="text-2xl font-bold text-blue-600">QM-Guru</a>
+            <div class="flex items-center gap-3">
+                <a href="{TELEFON_LINK}" class="hidden sm:inline text-gray-600 hover:text-gray-900">{TELEFON}</a>
+                <a href="{CALENDLY}" class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700">Termin buchen</a>
             </div>
         </div>
     </header>
-
-    <!-- Hero -->
-    <section class="bg-gradient-to-br from-blue-50 to-gray-50 py-20">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <h1 class="text-5xl font-bold mb-6">
-                ISO 9001-Beratung
-                <span class="text-blue-600 block mt-2">für Ihre Branche</span>
-            </h1>
-            <p class="text-2xl text-gray-600 mb-12 max-w-3xl mx-auto">
-                Branchenspezifische QM-Beratung von Holger Grosser. 
-                30+ Jahre Erfahrung, 1.000+ erfolgreiche Beratungen.
-            </p>
-            
-            <!-- Stats -->
-            <div class="grid md:grid-cols-4 gap-8 max-w-4xl mx-auto mb-12">
-                <div class="bg-white rounded-xl p-6 shadow-lg">
-                    <div class="text-4xl font-bold text-blue-600 mb-2">30+</div>
-                    <div class="text-gray-600">Jahre Erfahrung</div>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-lg">
-                    <div class="text-4xl font-bold text-blue-600 mb-2">1.000+</div>
-                    <div class="text-gray-600">Beratungen</div>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-lg">
-                    <div class="text-4xl font-bold text-blue-600 mb-2">4.9/5</div>
-                    <div class="text-gray-600">Google Rating</div>
-                </div>
-                <div class="bg-white rounded-xl p-6 shadow-lg">
-                    <div class="text-4xl font-bold text-green-600 mb-2">1.750€</div>
-                    <div class="text-gray-600">BAFA-Förderung</div>
-                </div>
-            </div>
-
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="https://calendly.com/grosser-qmguru/termin-qm-system-iso-9001" class="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-700">📅 Beratungstermin buchen</a>
-                <a href="https://angebote.qm-guru.de/" class="bg-white border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-50">💰 Kostenloses Angebot</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Branchen -->
-    <section class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold mb-4">Wählen Sie Ihre Branche</h2>
-                <p class="text-xl text-gray-600">Spezialisierte Beratung für Ihre Branche</p>
-            </div>
-
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
 '''
-    
-    # Branchen-Karten
-    for branche in branchen:
-        html += f'''
-                <a href="/{branche['slug']}.html" class="group bg-gradient-to-br from-blue-50 to-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-blue-500">
-                    <div class="text-5xl mb-4">🏭</div>
-                    <h3 class="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                        {branche['name']}
-                    </h3>
-                    <p class="text-gray-600 mb-4">
-                        {branche['beschreibung']}
-                    </p>
-                    <div class="text-sm text-gray-500 mb-4">
-                        {branche['beispiel_kunden']}
-                    </div>
-                    <div class="text-blue-600 font-semibold group-hover:translate-x-2 transition-transform">
-                        Mehr erfahren →
-                    </div>
-                </a>
-'''
-    
-    html += '''
-            </div>
-        </div>
-    </section>
 
-    <!-- Holger Grosser -->
-    <section class="py-16 bg-gradient-to-br from-blue-50 to-gray-50">
-        <div class="max-w-4xl mx-auto px-4">
-            <div class="bg-white rounded-2xl shadow-xl p-12">
-                <div class="flex flex-col md:flex-row items-center gap-8">
-                    <img src="/images/holger-grosser.jpg" alt="Holger Grosser" class="w-48 h-48 rounded-full object-cover border-4 border-blue-500 shadow-lg">
-                    <div class="flex-1 text-center md:text-left">
-                        <h2 class="text-3xl font-bold mb-2">Holger Grosser</h2>
-                        <p class="text-xl text-blue-600 mb-4">Ihr QM-Berater seit 1994</p>
-                        <p class="text-gray-700 mb-6">
-                            Mit über 30 Jahren Erfahrung im Qualitätsmanagement habe ich mehr als 1.000 Unternehmen 
-                            erfolgreich zur ISO 9001-Zertifizierung geführt. Mein Ansatz: Pragmatisch, effizient und 
-                            auf Ihre individuellen Bedürfnisse zugeschnitten.
-                        </p>
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                            <a href="https://calendly.com/grosser-qmguru/termin-qm-system-iso-9001" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">📅 Termin buchen</a>
-                            <a href="https://wa.me/4915792316673" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">💬 WhatsApp</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- CTA -->
-    <section class="py-16 bg-blue-600 text-white">
+def referenzen_html(slug):
+    stimmen = [s for s in ECHTE_STIMMEN if s[2] in (None, slug)]
+    if stimmen:
+        cards = ''
+        for zitat, nennung, _ in stimmen:
+            cards += f'''
+                <figure class="bg-white rounded-xl p-6 shadow">
+                    <blockquote class="text-gray-700">„{esc(zitat)}"</blockquote>
+                    <figcaption class="mt-4 text-sm text-gray-500">— {esc(nennung)}</figcaption>
+                </figure>'''
+        inner = f'<div class="grid md:grid-cols-2 gap-6 mb-8">{cards}</div>'
+    else:
+        # Bewusst keine erfundenen Zitate. Stattdessen Verweis auf nachprüfbare Quellen.
+        inner = ('<p class="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">'
+                 'Seit 1994 begleite ich Unternehmen durch die ISO 9001 – vom Handwerksbetrieb '
+                 'bis zum Mittelständler mit mehreren Standorten. Bewertungen und Referenzen '
+                 'stehen öffentlich einsehbar auf der Hauptseite.</p>')
+    return f'''
+    <section class="py-16 bg-gray-50">
         <div class="max-w-4xl mx-auto px-4 text-center">
-            <h2 class="text-4xl font-bold mb-4">Bereit für Ihre ISO 9001-Beratung?</h2>
-            <p class="text-xl mb-8">Kostenlose Erstberatung – unverbindlich und individuell</p>
+            <h2 class="text-3xl font-bold mb-6">Referenzen</h2>
+            {inner}
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="https://calendly.com/grosser-qmguru/termin-qm-system-iso-9001" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100">📅 Jetzt Termin buchen</a>
-                <a href="tel:091149522541" class="bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-800">📞 0911-49522541</a>
+                <a href="{REFERENZEN}" class="border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50">Kundenbewertungen ansehen</a>
+                <a href="{GOOGLE_MAPS}" rel="nofollow" class="border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100">Bewertungen bei Google</a>
             </div>
         </div>
     </section>
+'''
 
-    <!-- Footer -->
+
+def cta_html():
+    return f'''
+    <section class="py-16 bg-blue-600 text-white">
+        <div class="max-w-3xl mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4">Klären wir, was in Ihrem Fall nötig ist</h2>
+            <p class="text-lg mb-8 text-blue-100">Kostenloses Erstgespräch, 30 Minuten, ohne Verpflichtung.
+            Danach wissen Sie, was auf Sie zukommt – auch wenn Sie sich dagegen entscheiden.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{CALENDLY}" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100">Termin buchen</a>
+                <a href="{KOSTENRECHNER}" class="bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-800">Kosten berechnen</a>
+                <a href="{TELEFON_LINK}" class="bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-800">{TELEFON}</a>
+            </div>
+        </div>
+    </section>
+'''
+
+
+def footer_html(aktuelle_slug=None):
+    branchen_links = ''
+    for b in BRANCHEN:
+        if b['slug'] == aktuelle_slug:
+            branchen_links += f'                        <li class="text-white">{esc(b["name"])}</li>\n'
+        else:
+            branchen_links += (f'                        <li><a href="{b["slug"]}.html" class="hover:text-white">'
+                               f'{esc(b["name"])}</a></li>\n')
+    return f'''
     <footer class="bg-gray-900 text-gray-400 py-12">
-        <div class="max-w-7xl mx-auto px-4">
+        <div class="max-w-6xl mx-auto px-4">
             <div class="grid md:grid-cols-4 gap-8 mb-8">
                 <div>
                     <h3 class="text-white font-bold mb-4">QM-Guru</h3>
                     <p class="text-sm mb-4">Holger Grosser QM Dienstleistungen<br>Simonstr. 14<br>90763 Fürth</p>
                     <div class="space-y-2 text-sm">
-                        <div>📞 <a href="tel:091149522541" class="hover:text-white">0911-49522541</a></div>
-                        <div>💬 <a href="https://wa.me/4915792316673" class="hover:text-white">0157-92316673</a></div>
+                        <div><a href="{TELEFON_LINK}" class="hover:text-white">{TELEFON}</a></div>
+                        <div><a href="{WHATSAPP}" rel="nofollow" class="hover:text-white">WhatsApp</a></div>
                     </div>
                 </div>
                 <div>
                     <h3 class="text-white font-bold mb-4">Branchen</h3>
                     <ul class="space-y-2 text-sm">
-'''
-    
-    for branche in branchen:
-        html += f'                        <li><a href="/{branche["slug"]}.html" class="hover:text-white">{branche["name"]}</a></li>\n'
-    
-    html += '''
+{branchen_links}                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold mb-4">Themen auf qm-guru.de</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{HAUPTDOMAIN}/iso-9001-beratung/" class="hover:text-white">ISO 9001 Beratung</a></li>
+                        <li><a href="{KOSTENRECHNER}" class="hover:text-white">Kosten berechnen</a></li>
+                        <li><a href="{HAUPTDOMAIN}/iso-9001-express/" class="hover:text-white">Express-Zertifizierung</a></li>
+                        <li><a href="{HAUPTDOMAIN}/fordergelder-fur-die-iso-9001-zertifizierung/" class="hover:text-white">BAFA-Förderung</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-white font-bold mb-4">Leistungen</h3>
+                    <h3 class="text-white font-bold mb-4">Rechtliches</h3>
                     <ul class="space-y-2 text-sm">
-                        <li>✓ 100% Online-Beratung</li>
-                        <li>✓ BAFA-Förderung bis 1.750€</li>
-                        <li>✓ 30+ Jahre Erfahrung</li>
-                        <li>✓ 1.000+ Beratungen</li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-white font-bold mb-4">Links</h3>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="https://qm-guru.de" class="hover:text-white">Hauptseite</a></li>
-                        <li><a href="https://qm-guru.de/Sonstiges/impressum/" class="hover:text-white">Impressum</a></li>
-                        <li><a href="https://qm-guru.de/Sonstiges/datenschutz/" class="hover:text-white">Datenschutz</a></li>
+                        <li><a href="{HAUPTDOMAIN}" class="hover:text-white">Hauptseite</a></li>
+                        <li><a href="{IMPRESSUM}" rel="nofollow" class="hover:text-white">Impressum</a></li>
+                        <li><a href="{DATENSCHUTZ}" rel="nofollow" class="hover:text-white">Datenschutz</a></li>
                     </ul>
                 </div>
             </div>
             <div class="border-t border-gray-800 pt-8 text-center text-sm">
-                <p>© 2025 Holger Grosser QM Dienstleistungen. Alle Rechte vorbehalten.</p>
+                <p>&copy; {JAHR} Holger Grosser QM Dienstleistungen</p>
             </div>
         </div>
     </footer>
 
-    <!-- Floating Buttons -->
-    <a href="https://wa.me/4915792316673" class="fixed bottom-6 right-6 bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 z-50">
-        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.304-1.654a11.882 11.882 0 005.713 1.456h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+    <a href="{WHATSAPP}" rel="nofollow" aria-label="WhatsApp-Beratung"
+       class="fixed bottom-6 right-6 bg-green-500 text-white px-5 py-4 rounded-full shadow-lg hover:bg-green-600 z-50 font-semibold">
+        WhatsApp
     </a>
 
 </body>
 </html>
 '''
-    
-    return html
+
+
+# --------------------------------------------------------------------------- #
+# BRANCHENSEITE
+# --------------------------------------------------------------------------- #
+
+def branchen_schema(b, url):
+    service = {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": f"ISO 9001 Beratung für {b['name_full']}",
+        "serviceType": "ISO 9001 Beratung",
+        "url": url,
+        "areaServed": {"@type": "Country", "name": "Deutschland"},
+        "provider": {
+            "@type": "ProfessionalService",
+            "name": "Holger Grosser QM Dienstleistungen",
+            "url": HAUPTDOMAIN,
+            "telephone": "+49 911 49522541",
+            "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Simonstr. 14",
+                "postalCode": "90763",
+                "addressLocality": "Fürth",
+                "addressCountry": "DE",
+            },
+        },
+        "audience": {"@type": "Audience", "audienceType": b['name_full']},
+    }
+    faq = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {"@type": "Question", "name": f,
+             "acceptedAnswer": {"@type": "Answer", "text": a}}
+            for f, a in b['faq']
+        ],
+    }
+    breadcrumb = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "QM-Guru", "item": HAUPTDOMAIN},
+            {"@type": "ListItem", "position": 2, "name": "ISO 9001 nach Branche", "item": f"{SITE_BASE}/"},
+            {"@type": "ListItem", "position": 3, "name": b['name'], "item": url},
+        ],
+    }
+    return [service, faq, breadcrumb]
+
+
+def generate_branchen_page(b):
+    url = f"{SITE_BASE}/{b['slug']}.html"
+    h = head(b['meta_title'], b['meta_desc'], url, branchen_schema(b, url))
+
+    probleme = ''
+    for titel, text in b['probleme']:
+        probleme += f'''
+                <div class="bg-white rounded-xl p-6 shadow border-l-4 border-red-400">
+                    <h3 class="font-bold text-lg mb-2">{esc(titel)}</h3>
+                    <p class="text-gray-700">{esc(text)}</p>
+                </div>'''
+
+    zeilen = ''
+    for abschnitt, schwach, nachweis in b['normtabelle']:
+        zeilen += f'''
+                    <tr class="border-b">
+                        <td class="prose-td py-4 pr-4 font-semibold text-blue-700 align-top">{esc(abschnitt)}</td>
+                        <td class="prose-td py-4 pr-4 text-gray-700">{esc(schwach)}</td>
+                        <td class="prose-td py-4 text-gray-700">{esc(nachweis)}</td>
+                    </tr>'''
+
+    dokumente = ''
+    for d in b['dokumente']:
+        dokumente += ('                <li class="flex gap-3"><span class="text-green-600 font-bold">&#10003;</span>'
+                      f'<span>{esc(d)}</span></li>\n')
+
+    phasen_titel = ['Bestandsaufnahme', 'Aufbau der Dokumentation', 'Auditvorbereitung']
+    phasen = ''
+    for i, (pt, ptext) in enumerate(zip(phasen_titel, b['phasen']), start=1):
+        phasen += f'''
+                <div class="bg-white rounded-xl p-6 shadow">
+                    <div class="text-blue-600 font-bold text-3xl mb-2">{i}</div>
+                    <h3 class="font-bold text-lg mb-2">{esc(pt)}</h3>
+                    <p class="text-gray-700">{esc(ptext)}</p>
+                </div>'''
+
+    faq = ''
+    for frage, antwort in b['faq']:
+        faq += f'''
+                <details class="bg-white rounded-xl p-6 shadow">
+                    <summary class="font-bold text-lg cursor-pointer">{esc(frage)}</summary>
+                    <p class="text-gray-700 mt-3">{esc(antwort)}</p>
+                </details>'''
+
+    verwandt = ''
+    if b['verwandt']:
+        vurl, vtext = b['verwandt']
+        verwandt = f'''
+            <div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
+                <a href="{vurl}" class="text-blue-700 font-semibold hover:underline">{esc(vtext)} &rarr;</a>
+            </div>'''
+
+    andere = ''
+    for other in BRANCHEN:
+        if other['slug'] == b['slug']:
+            continue
+        andere += (f'                <a href="{other["slug"]}.html" class="bg-white border rounded-lg px-4 py-3 '
+                   f'hover:border-blue-500 hover:text-blue-600">{other["icon"]} {esc(other["name"])}</a>\n')
+
+    body = f'''
+    <section class="bg-gradient-to-br from-blue-50 to-white py-16">
+        <div class="max-w-4xl mx-auto px-4">
+            <p class="text-sm font-bold tracking-widest text-blue-600 mb-4">SPEZIALISIERT AUF {esc(b['name_upper'])}</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">{esc(b['h1'])}</h1>
+            <p class="text-xl text-gray-700 mb-8 max-w-3xl">{esc(b['hero_sub'])}</p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="{CALENDLY}" class="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700">Kostenloses Erstgespräch</a>
+                <a href="{KOSTENRECHNER}" class="bg-white border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50">Kosten berechnen</a>
+            </div>
+            <p class="text-sm text-gray-500 mt-6">Bis zu 1.750 &euro; BAFA-Förderung möglich &middot; 100 % Online-Beratung &middot; Zertifizierungsreif in 2&ndash;3 Monaten</p>
+        </div>
+    </section>
+
+    <section class="py-16">
+        <div class="max-w-5xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-3">Warum {esc(b['name_full'])} bei uns landen</h2>
+            <p class="text-gray-600 mb-10 max-w-3xl">{esc(b['kontext'])}</p>
+            <div class="grid md:grid-cols-3 gap-6">{probleme}
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-3">Woran es bei {esc(b['name_full'])} im Audit typischerweise hakt</h2>
+            <p class="text-gray-600 mb-10 max-w-3xl">Diese Punkte kommen in dieser Branche immer wieder &ndash;
+            und sie sind der Grund, warum ein Standard-QM-Handbuch aus dem Internet hier nicht trägt.</p>
+            <div class="overflow-x-auto bg-white rounded-xl shadow p-6">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="border-b-2 border-gray-200">
+                            <th class="py-3 pr-4">Normabschnitt</th>
+                            <th class="py-3 pr-4">Typische Schwachstelle</th>
+                            <th class="py-3">Was der Auditor sehen will</th>
+                        </tr>
+                    </thead>
+                    <tbody>{zeilen}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-3">Was am Ende bei Ihnen liegt</h2>
+            <p class="text-gray-600 mb-8">Keine Handbuchsammlung, sondern die Dokumente, die in Ihrer Branche
+            tatsächlich gebraucht und im Audit auch gezeigt werden.</p>
+            <ul class="space-y-3 text-gray-800">
+{dokumente}            </ul>
+            {verwandt}
+        </div>
+    </section>
+
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-5xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-10">So läuft es ab</h2>
+            <div class="grid md:grid-cols-3 gap-6">{phasen}
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-3">Was das kostet</h2>
+            <p class="text-gray-700 mb-6">Der Aufwand hängt vor allem von der Mitarbeiterzahl und der Zahl der
+            Standorte ab, nicht vom Umsatz. Über die BAFA-Förderung sind bis zu 1.750 &euro; erstattungsfähig,
+            sofern die Voraussetzungen erfüllt sind.</p>
+            <p class="text-gray-700 mb-8">Hinzu kommen die Gebühren der Zertifizierungsstelle, die separat
+            abgerechnet werden. Was in Ihrem Fall zusammenkommt, rechnen Sie in zwanzig Sekunden selbst aus.</p>
+            <a href="{KOSTENRECHNER}" class="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700">Kosten für Ihren Betrieb berechnen</a>
+        </div>
+    </section>
+
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-10">Häufige Fragen aus dieser Branche</h2>
+            <div class="space-y-4">{faq}
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row gap-8 items-center bg-gray-50 rounded-2xl p-8">
+                <img src="images/holger-grosser.jpg" alt="Holger Grosser, QM-Berater"
+                     class="w-40 h-40 rounded-full object-cover border-4 border-blue-500" loading="lazy" width="160" height="160">
+                <div>
+                    <h2 class="text-2xl font-bold mb-1">Holger Grosser</h2>
+                    <p class="text-blue-600 mb-4">QM-Berater seit 1994 &middot; BAFA-zugelassen</p>
+                    <p class="text-gray-700">Ich berate ausschließlich selbst &ndash; Sie haben von der ersten Stunde
+                    bis zum Zertifizierungsaudit denselben Ansprechpartner. Mein Ansatz ist die schlankest
+                    mögliche Dokumentation, die das Audit besteht und die Sie danach auch wirklich weiterführen.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+{referenzen_html(b['slug'])}
+    <section class="py-12 bg-gray-50 border-t">
+        <div class="max-w-5xl mx-auto px-4">
+            <h2 class="text-xl font-bold mb-6">ISO 9001 in anderen Branchen</h2>
+            <div class="flex flex-wrap gap-3">
+{andere}            </div>
+        </div>
+    </section>
+{cta_html()}'''
+
+    return h + header_html() + body + footer_html(b['slug'])
+
+
+# --------------------------------------------------------------------------- #
+# ÜBERSICHTSSEITE
+# --------------------------------------------------------------------------- #
+
+def generate_index_page():
+    url = f'{SITE_BASE}/'
+    title = 'ISO 9001 Beratung nach Branche | QM-Guru Holger Grosser'
+    desc = ('ISO 9001 Beratung zugeschnitten auf Ihre Branche: Produktion, Maschinenbau, Handel, '
+            'IT, Sicherheit, Reinigung. 30+ Jahre Erfahrung, BAFA-Förderung bis 1.750 Euro.')
+
+    schema = [{
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {"@type": "Question", "name": f,
+             "acceptedAnswer": {"@type": "Answer", "text": a}}
+            for f, a in ALLGEMEINE_FAQ
+        ],
+    }, {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": title,
+        "url": url,
+        "isPartOf": {"@type": "WebSite", "name": "QM-Guru", "url": HAUPTDOMAIN},
+        "hasPart": [
+            {"@type": "WebPage", "name": f"ISO 9001 für {b['name_full']}",
+             "url": f"{SITE_BASE}/{b['slug']}.html"} for b in BRANCHEN
+        ],
+    }]
+
+    karten = ''
+    for b in BRANCHEN:
+        karten += f'''
+                <a href="{b['slug']}.html" class="group bg-white rounded-2xl p-8 shadow hover:shadow-xl transition border-2 border-transparent hover:border-blue-500">
+                    <div class="text-4xl mb-4">{b['icon']}</div>
+                    <h3 class="text-xl font-bold mb-3 group-hover:text-blue-600">{esc(b['name_full'])}</h3>
+                    <p class="text-gray-600 text-sm mb-4">{esc(b['probleme'][0][0])}</p>
+                    <span class="text-blue-600 font-semibold text-sm">Zur Branchenseite &rarr;</span>
+                </a>'''
+
+    allgemeine_faq = ''
+    for frage, antwort in ALLGEMEINE_FAQ:
+        allgemeine_faq += f'''
+                <details class="bg-white rounded-xl p-6 shadow">
+                    <summary class="font-bold text-lg cursor-pointer">{esc(frage)}</summary>
+                    <p class="text-gray-700 mt-3">{esc(antwort)}</p>
+                </details>'''
+
+    body = f'''
+    <section class="bg-gradient-to-br from-blue-50 to-white py-20">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">ISO 9001 &ndash; zugeschnitten auf Ihre Branche</h1>
+            <p class="text-xl text-gray-700 mb-8">Ein QM-System aus der Serienfertigung passt keinem
+            Dienstleister, und ein Handelssystem hilft keinem Maschinenbauer. Wählen Sie Ihre Branche &ndash;
+            dort steht, woran es dort im Audit konkret hakt.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{CALENDLY}" class="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700">Kostenloses Erstgespräch</a>
+                <a href="{KOSTENRECHNER}" class="bg-white border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50">Kosten berechnen</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-10 text-center">Wählen Sie Ihre Branche</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">{karten}
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-4">Warum branchenspezifisch?</h2>
+            <p class="text-gray-700 mb-4">Die ISO 9001 ist bewusst allgemein formuliert &ndash; sie gilt für den
+            Maschinenbauer genauso wie für den Pflegedienst. Genau das macht sie in der Praxis schwierig:
+            Was in der Fertigung selbstverständlich ist, ergibt beim Softwarehaus keinen Sinn, und umgekehrt.</p>
+            <p class="text-gray-700 mb-4">Die Abweichungen im Zertifizierungsaudit sind deshalb erstaunlich
+            berechenbar. In der Produktion sind es fast immer Prüfmittel und Sperrware. Im Maschinenbau ist es
+            Kapitel 8.3. Beim Dienstleister fehlt der Nachweis der erbrachten Leistung. Beim Sicherheitsdienst
+            die Qualifikationsnachweise bei Fluktuation.</p>
+            <p class="text-gray-700">Auf den Branchenseiten steht jeweils, welche Normabschnitte dort erfahrungsgemäß
+            zum Problem werden und welchen Nachweis der Auditor konkret sehen will.</p>
+        </div>
+    </section>
+
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-3">Fragen, die alle stellen</h2>
+            <p class="text-gray-600 mb-10">Unabhängig von der Branche kommen diese Fragen in fast jeder Beratung –
+            hier die Antworten, die ich auch am Telefon gebe.</p>
+            <div class="space-y-4">{allgemeine_faq}
+            </div>
+        </div>
+    </section>
+{referenzen_html(None)}{cta_html()}'''
+
+    return head(title, desc, url, schema) + header_html() + body + footer_html(None)
+
+
+# --------------------------------------------------------------------------- #
+# SITEMAP / ROBOTS
+# --------------------------------------------------------------------------- #
+
+def generate_sitemap(datum='2026-08-18'):
+    urls = [f'{SITE_BASE}/'] + [f"{SITE_BASE}/{b['slug']}.html" for b in BRANCHEN]
+    out = ['<?xml version="1.0" encoding="UTF-8"?>',
+           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for i, u in enumerate(urls):
+        out.append('  <url>')
+        out.append(f'    <loc>{u}</loc>')
+        out.append(f'    <lastmod>{datum}</lastmod>')
+        out.append(f'    <priority>{"1.0" if i == 0 else "0.8"}</priority>')
+        out.append('  </url>')
+    out.append('</urlset>')
+    return '\n'.join(out) + '\n'
+
+
+def generate_robots():
+    return f'User-agent: *\nAllow: /\n\nSitemap: {SITE_BASE}/sitemap.xml\n'
+
+
+# --------------------------------------------------------------------------- #
 
 def main():
-    """Hauptfunktion"""
-    output_dir = Path('public')
-    output_dir.mkdir(exist_ok=True)
-    
-    template_path = output_dir / 'produktion.html'
-    
-    print("🏭 QMBerater Landing Pages Generator")
-    print("=" * 50)
-    
-    # Prüfe ob Template existiert
-    if not template_path.exists():
-        print(f"❌ FEHLER: Template nicht gefunden: {template_path}")
-        print("Bitte stellen Sie sicher, dass produktion.html existiert!")
-        return
-    
-    print(f"✓ Template gefunden: {template_path}")
-    print()
-    
-    # Generiere alle Branchen-Seiten
-    print("📄 Generiere Branchen-Seiten...")
-    for branche in BRANCHEN:
-        output_file = output_dir / f"{branche['slug']}.html"
-        
-        # Überspringe Produktion (ist bereits das Template)
-        if branche['slug'] == 'produktion':
-            print(f"  ⏭️  {branche['slug']}.html (Template - wird übersprungen)")
-            continue
-        
-        content = generate_page(branche, template_path)
-        
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write(content)
-        
-        print(f"  ✓ {branche['slug']}.html erstellt")
-    
-    # Generiere Index-Seite
-    print("\n📑 Generiere Index-Seite...")
-    index_content = generate_index_page(BRANCHEN)
-    index_file = output_dir / 'index.html'
-    
-    with open(index_file, 'w', encoding='utf-8') as f:
-        f.write(index_content)
-    
-    print(f"  ✓ index.html erstellt")
-    
-    print("\n" + "=" * 50)
-    print("✅ FERTIG!")
-    print(f"\n📁 Alle Dateien in: {output_dir.absolute()}")
-    print(f"\n📄 Generierte Seiten:")
-    print(f"  - index.html (Übersicht)")
-    for branche in BRANCHEN:
-        print(f"  - {branche['slug']}.html")
-    
-    print("\n🎯 Nächste Schritte:")
-    print("  1. Foto hinzufügen: public/images/holger-grosser.jpg")
-    print("  2. Alle Seiten testen (Browser)")
-    print("  3. Deployment via Netlify oder eigener Server")
+    out = Path('public')
+    out.mkdir(exist_ok=True)
 
-if __name__ == "__main__":
+    print('QMBerater Landing Pages Generator v2')
+    print('=' * 52)
+    print(f'SITE_BASE: {SITE_BASE}')
+    print()
+
+    for b in BRANCHEN:
+        (out / f"{b['slug']}.html").write_text(generate_branchen_page(b), encoding='utf-8')
+        print(f"  ok  {b['slug']}.html")
+
+    (out / 'index.html').write_text(generate_index_page(), encoding='utf-8')
+    print('  ok  index.html')
+
+    (out / 'sitemap.xml').write_text(generate_sitemap(), encoding='utf-8')
+    (out / 'robots.txt').write_text(generate_robots(), encoding='utf-8')
+    print('  ok  sitemap.xml, robots.txt')
+
+    print()
+    print('Vor dem Deploy pruefen:')
+    print('  - public/images/og-image.jpg vorhanden?')
+    print('  - public/images/favicon.svg vorhanden?')
+    print('  - ECHTE_STIMMEN gefuellt oder bewusst leer gelassen?')
+
+
+if __name__ == '__main__':
     main()

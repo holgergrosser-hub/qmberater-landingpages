@@ -2,16 +2,47 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://landing.qmberater.info/</loc>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-08-18</lastmod>
     <priority>1.0</priority>
   </url>
-
-  <url><loc>https://landing.qmberater.info/produktion.html</loc></url>
-  <url><loc>https://landing.qmberater.info/dienstleistung.html</loc></url>
-  <url><loc>https://landing.qmberater.info/it-dienstleistung.html</loc></url>
-  <url><loc>https://landing.qmberater.info/it-softwareentwicklung.html</loc></url>
-  <url><loc>https://landing.qmberater.info/sicherheitsdienstleistung.html</loc></url>
-  <url><loc>https://landing.qmberater.info/reinigung.html</loc></url>
-  <url><loc>https://landing.qmberater.info/maschinenbau.html</loc></url>
-  <url><loc>https://landing.qmberater.info/handel.html</loc></url>
+  <url>
+    <loc>https://landing.qmberater.info/produktion.html</loc>
+    <lastmod>2026-08-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://landing.qmberater.info/maschinenbau.html</loc>
+    <lastmod>2026-08-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://landing.qmberater.info/handel.html</loc>
+    <lastmod>2026-08-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://landing.qmberater.info/dienstleistung.html</loc>
+    <lastmod>2026-08-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://landing.qmberater.info/it-dienstleistung.html</loc>
+    <lastmod>2026-08-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://landing.qmberater.info/it-softwareentwicklung.html</loc>
+    <lastmod>2026-08-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://landing.qmberater.info/sicherheitsdienstleistung.html</loc>
+    <lastmod>2026-08-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://landing.qmberater.info/reinigung.html</loc>
+    <lastmod>2026-08-18</lastmod>
+    <priority>0.8</priority>
+  </url>
 </urlset>

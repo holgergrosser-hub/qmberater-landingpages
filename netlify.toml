@@ -1,37 +1,56 @@
+# Netlify-Konfiguration – qmberater-landingpages
+#
+# Es gibt bewusst KEIN build command: das fertige HTML und die kompilierte
+# Tailwind-CSS liegen im Repo unter public/. Netlify veröffentlicht sie direkt.
+# Neu gebaut wird lokal mit ./build.sh, das Ergebnis wird committet.
+
 [build]
   publish = "public"
 
-# Statische Dateien explizit als statisch markieren
-[[redirects]]
-  from = "/sitemap.xml"
-  to = "/sitemap.xml"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/robots.txt"
-  to = "/robots.txt"
-  status = 200
-  force = true
-
-# Headers für SEO
-[[headers]]
-  for = "/sitemap.xml"
-  [headers.values]
-    Content-Type = "application/xml; charset=utf-8"
-    Cache-Control = "public, max-age=3600"
+# --------------------------------------------------------------------------
+# Beim späteren Umzug auf qm-guru.de/iso-9001-branchen/ diesen Block
+# einkommentieren. Reihenfolge beachten: der 301 der Subdomain zuerst,
+# danach die Prefix-Toleranz.
+# --------------------------------------------------------------------------
+# [[redirects]]
+#   from = "https://landing.qmberater.info/*"
+#   to = "https://qm-guru.de/iso-9001-branchen/:splat"
+#   status = 301
+#   force = true
+#
+# [[redirects]]
+#   from = "/iso-9001-branchen/*"
+#   to = "/:splat"
+#   status = 200
 
 [[headers]]
-  for = "/robots.txt"
+  for = "/*"
   [headers.values]
-    Content-Type = "text/plain; charset=utf-8"
-    Cache-Control = "public, max-age=3600"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"
 
-# HTML Seiten ohne Cache
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+
 [[headers]]
   for = "/*.html"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
 
-
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"

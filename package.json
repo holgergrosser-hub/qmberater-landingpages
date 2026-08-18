@@ -1,0 +1,13 @@
+{
+  "name": "qmberater-landingpages",
+  "private": true,
+  "version": "2.0.0",
+  "description": "ISO 9001 Branchen-Landingpages – statisch generiert",
+  "scripts": {
+    "build": "python3 generate_all_pages.py && npm run css",
+    "css": "tailwindcss -c tailwind.config.js -i build/input.css -o public/assets/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}
