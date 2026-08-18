@@ -8,20 +8,24 @@
   publish = "public"
 
 # --------------------------------------------------------------------------
-# Beim späteren Umzug auf qm-guru.de/iso-9001-branchen/ diesen Block
-# einkommentieren. Reihenfolge beachten: der 301 der Subdomain zuerst,
-# danach die Prefix-Toleranz.
+# UMZUG auf qm-guru.de/iso-9001-wissen/
+# Reihenfolge beachten: erst muss der Cloudflare-Worker "wissen-proxy" laufen,
+# DANN diesen Commit veroeffentlichen. Sonst leitet die Subdomain auf eine 404.
 # --------------------------------------------------------------------------
-# [[redirects]]
-#   from = "https://landing.qmberater.info/*"
-#   to = "https://qm-guru.de/iso-9001-branchen/:splat"
-#   status = 301
-#   force = true
-#
-# [[redirects]]
-#   from = "/iso-9001-branchen/*"
-#   to = "/:splat"
-#   status = 200
+
+# 1) Alte Subdomain dauerhaft auf die neue URL, Pfad bleibt erhalten
+[[redirects]]
+  from = "https://landing.qmberater.info/*"
+  to = "https://qm-guru.de/iso-9001-wissen/:splat"
+  status = 301
+  force = true
+
+# 2) Prefix-Toleranz: falls doch einmal ein Aufruf MIT Prefix bei Netlify
+#    ankommt, wird er trotzdem korrekt bedient
+[[redirects]]
+  from = "/iso-9001-wissen/*"
+  to = "/:splat"
+  status = 200
 
 [[headers]]
   for = "/*"

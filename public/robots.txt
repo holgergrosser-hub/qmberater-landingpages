@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://landing.qmberater.info/sitemap.xml
+Sitemap: https://qm-guru.de/iso-9001-wissen/sitemap.xml

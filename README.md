@@ -93,17 +93,28 @@ Eine wiederkehrende Aufgabe erinnert daran. Durchzugehen sind:
 
 ---
 
-## Umzug auf die Hauptdomain
+## Umzug auf die Hauptdomain – vorbereitet
 
-1. In `generate_all_pages.py` `SITE_BASE` auf
-   `https://qm-guru.de/iso-9001-branchen` umstellen
-2. `./build.sh`
-3. Cloudflare-Worker `branchen-proxy` anlegen, Routen
-   `qm-guru.de/iso-9001-branchen*` und `www.qm-guru.de/iso-9001-branchen*`
-4. Erst danach den 301-Block in `netlify.toml` einkommentieren und committen
+Ziel: `https://qm-guru.de/iso-9001-wissen/`
 
-Alle internen Links und Asset-Pfade sind relativ und funktionieren unter jedem
-Pfad-Präfix – am HTML muss für den Umzug nichts angefasst werden.
+`SITE_BASE` steht bereits auf dem neuen Pfad, `public/` ist entsprechend gebaut,
+`netlify.toml` enthält den aktiven 301-Block, `worker.js` liegt einsatzfertig bei.
+
+**Reihenfolge:** erst den Cloudflare-Worker `wissen-proxy` deployen und die Routen
+`qm-guru.de/iso-9001-wissen*` sowie `www.qm-guru.de/iso-9001-wissen*` anlegen –
+DANN committen. Umgekehrt leitet die Subdomain auf eine 404.
+
+Vorher lokal prüfen:
+
+```sh
+python3 tools/simulate.py
+```
+
+Das baut Worker und Netlify nach und testet 17 URLs (Seiten, Assets, Sitemap,
+Query-Parameter, fremde Pfade). Alle müssen bestehen.
+
+Alle internen Links und Asset-Pfade sind relativ – am HTML muss für den Umzug
+nichts angefasst werden.
 
 ---
 

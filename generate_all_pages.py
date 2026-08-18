@@ -52,7 +52,7 @@ from faq_content import FAQ_SEITEN
 
 # Aktuell:  https://landing.qmberater.info
 # Nach dem Umzug auf:  https://qm-guru.de/iso-9001-branchen
-SITE_BASE = 'https://landing.qmberater.info'
+SITE_BASE = 'https://qm-guru.de/iso-9001-wissen'
 
 HAUPTDOMAIN   = 'https://qm-guru.de'
 IMPRESSUM     = 'https://qm-guru.de/impressum/'
