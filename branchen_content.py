@@ -761,4 +761,306 @@ BRANCHEN = [
         'verwandt': ('https://qm-guru.de/iso-9001-gebaeudereinigung/',
                      'Ausführlich für die Gebäudereinigung: Ablauf, Kosten und Ausschreibungspraxis'),
     },
+
+    # ------------------------------------------------------------------ #
+    {
+        'slug': 'personaldienstleistung',
+        'name': 'Personaldienstleistung',
+        'name_full': 'Personaldienstleister und Recruiting-Unternehmen',
+        'name_upper': 'PERSONALDIENSTLEISTUNG',
+        'icon': '👥',
+        'meta_title': 'ISO 9001 für Personaldienstleister | QM-Beratung',
+        'meta_desc': 'ISO 9001 für Personalvermittlung und Arbeitnehmerüberlassung: Bewerberdaten, '
+                     'Qualifikationsnachweise, Rahmenverträge, internationale Partner. Mit BAFA-Förderung.',
+        'h1': 'ISO 9001 für Personaldienstleister',
+        'hero_sub': 'Ihr Bewerbersystem ist bereits Ihr Qualitätsnachweis. Wir machen daraus ein QM-System, '
+                    'das im Audit trägt – ohne dass Sie sensible Bewerberdaten offenlegen müssen.',
+
+        'probleme': [
+            ('Großkunden verlangen das Zertifikat, bevor sie einen Rahmenvertrag schließen',
+             'In der Arbeitnehmerüberlassung und im Recruiting qualifizieren Konzerne ihre Dienstleister '
+             'genauso wie ihre Materiallieferanten. Ohne QM-Nachweis kommen Sie bei Rahmenverträgen und '
+             'Ausschreibungen häufig gar nicht erst in die Bewertung.'),
+            ('Die Qualität hängt an Menschen – und die wechseln',
+             'Ihr Produkt ist die Passung zwischen Kandidat und Einsatzbetrieb. Kapitel 7.2 fragt genau '
+             'danach: Woran machen Sie fest, dass jemand geeignet ist, und wo steht das nachprüfbar?'),
+            ('Datenschutz und Auditnachweis scheinen sich zu widersprechen',
+             'Bewerberdaten, Zeugnisse, Referenzauskünfte, bei internationalen Vermittlungen auch Visa- '
+             'und Anerkennungsunterlagen – all das ist hochsensibel. Die Frage ist berechtigt: Was zeigt '
+             'man dem Auditor eigentlich?'),
+        ],
+
+        'normtabelle': [
+            ('8.2.2 / 8.2.3 Anforderungen bestimmen und überprüfen',
+             'Das Anforderungsprofil des Kunden steckt in einer E-Mail oder im Kopf des Vertriebs',
+             'Dokumentiertes Anforderungsprofil je Auftrag, Machbarkeitsprüfung vor Zusage, Nachweis der Rückbestätigung'),
+            ('8.5.1 Steuerung der Dienstleistungserbringung',
+             'Der Vermittlungsprozess ist gelebt, aber nirgends als Prozess beschrieben',
+             'Bewerbersystem/CRM als führendes Nachweissystem: Statuslogik (verfügbar → vorgestellt → vermittelt), Interviewtermine, Zusagen'),
+            ('7.2 Kompetenz',
+             'Qualifikationen der vermittelten Personen sind nicht einheitlich geprüft',
+             'Festgelegte Mindestkriterien je Stellenart (Qualifikation, Erlaubnisse, ggf. Sprachniveau), Nachweis der Prüfung im Erstinterview'),
+            ('8.4 Extern bereitgestellte Prozesse',
+             'Partner im Ausland, Personalvermittler und Sprachschulen gelten nicht als Lieferanten',
+             'Auswahl- und Bewertungsverfahren für Partner, klare Vorgaben in der Beauftragung, Rückmeldung bei Qualitätsproblemen'),
+            ('7.5 Dokumentierte Information',
+             'Bewerberunterlagen und Vollmachten liegen verstreut in Postfächern',
+             'Einheitliche Ablagestruktur je Kandidat, geregelte Zugriffsrechte, Aufbewahrungs- und Löschfristen'),
+            ('9.1.2 Kundenzufriedenheit',
+             'Rückmeldung kommt nur, wenn etwas schiefläuft',
+             'Strukturierte Nachfrage beim Einsatzbetrieb nach der Vermittlung, Auswertung von Abbrüchen und Verlängerungen'),
+            ('6.1 Risiken und Chancen',
+             'Ein oder zwei Großkunden machen den Großteil des Umsatzes aus',
+             'Risikoübersicht mit Maßnahmen zu Kundenkonzentration, Kandidatenausfall und Verfahrensverzögerungen'),
+        ],
+
+        'dokumente': [
+            'Prozessbeschreibung von der Kundenanfrage bis zur Vermittlung',
+            'Anforderungsprofil und Auftragsklärung als Nachweisdokument',
+            'Mindestkriterien für Kandidaten je Stellenart',
+            'Bewertung der Vermittlungs- und Auslandspartner',
+            'Ablage- und Löschkonzept für Bewerberunterlagen',
+            'Rückmeldeverfahren mit den Einsatzbetrieben',
+            'Kennzahlen: Vermittlungsquote, Abbruchquote, Zeit bis zur Besetzung',
+        ],
+
+        'phasen': [
+            'Wir gehen Ihren Vermittlungsprozess einmal an einem echten Fall durch – von der Anfrage über '
+            'das Erstinterview bis zur Übergabe. Was Ihr System ohnehin erfasst, wird zum Nachweis.',
+            'Wir beschreiben genau die Schnittstellen, an denen es in Ihrer Branche klemmt: Partner im '
+            'Ausland, Behörden, Einsatzbetrieb, interne Zuständigkeiten. Nicht mehr.',
+            'Wir klären vorab, welche Unterlagen im Audit gezeigt werden – und welche aus Datenschutzgründen '
+            'ausdrücklich nicht. Das nimmt die größte Unsicherheit aus dem Termin.',
+        ],
+
+        'faq': [
+            ('Müssen wir dem Auditor Bewerber- und Mitarbeiterdaten zeigen?',
+             'Nein, und Sie sollten es auch nicht. Keine Personaldaten, keine Zertifikate einzelner Mitarbeiter – '
+             'das will niemand sehen und ich auch nicht. Gezeigt wird das Verfahren: dass es feste Kriterien gibt, '
+             'dass sie angewendet werden und wo das nachvollziehbar ist. Wenn etwas aus Datenschutzgründen nicht '
+             'gezeigt werden kann, sagen Sie das genau so.'),
+            ('Wie detailliert muss ich meinen Prozess im Audit erklären?',
+             'Zeigen Sie nur Ihren eigenen Prozess. Wenn etwas eine Kollegin macht, sagen Sie das auch so: '
+             '„Das macht die Kollegin.“ Der Auditor will sehen, was SIE machen. Wenn Sie anfangen, die Prozesse '
+             'anderer zu erklären, fragt er dort nach – und dann werden Sie unsicher.'),
+            ('Zählt unser Rekrutierungspartner im Ausland als Lieferant?',
+             'Ja. Wenn Sie Leistung einkaufen, die in Ihr Ergebnis eingeht, ist das Kapitel 8.4. Sie müssen den '
+             'Partner auswählen, ihm Ihre Anforderungen mitgeben und die Qualität zurückspiegeln. Das ist meist '
+             'ohnehin gelebte Praxis – es fehlt nur die Aufschreibung.'),
+            ('Ersetzt die ISO 9001 die Erlaubnis nach dem AÜG?',
+             'Nein. Die Erlaubnis zur Arbeitnehmerüberlassung ist gesetzlich und behördlich, die ISO 9001 ist '
+             'freiwillig und betrifft Ihre Prozesse. Im Audit wird allerdings gefragt, ob Sie die für Sie geltenden '
+             'rechtlichen Anforderungen kennen und einhalten – dazu gehört auch das AÜG.'),
+            ('Welche Systeme muss ich im Audit zeigen?',
+             'Die, mit denen Sie arbeiten: Ihr Bewerbersystem, in dem die Kandidaten mit Status erfasst sind, und '
+             'Ihren Terminkalender, in dem die Interviews organisiert werden. Gehen Sie an einem echten Beispiel '
+             'durch, wie ein Fall vom Erstkontakt bis zur Vermittlung läuft. Das überzeugt mehr als jedes Handbuch.'),
+        ],
+
+        'kontext': 'Personaldienstleister geraten fast immer über Rahmenverträge an die ISO 9001: Industriekunden, '
+                   'Kliniken und öffentliche Auftraggeber qualifizieren ihre Dienstleister systematisch, und der '
+                   'QM-Nachweis steht dabei regelmäßig als Eignungskriterium in den Unterlagen.',
+        'verwandt': None,
+    },
+
+    # ------------------------------------------------------------------ #
+    {
+        'slug': 'logistik-spedition',
+        'name': 'Logistik & Spedition',
+        'name_full': 'Speditionen und Logistikdienstleister',
+        'name_upper': 'LOGISTIK & SPEDITION',
+        'icon': '🚚',
+        'meta_title': 'ISO 9001 für Spedition & Logistik | QM-Beratung',
+        'meta_desc': 'ISO 9001 für Speditionen und Logistiker: Subunternehmersteuerung, Temperaturführung, '
+                     'Gefahrgut, Transportschäden. Auch ohne eigene Flotte. Mit BAFA-Förderung.',
+        'h1': 'ISO 9001 für Speditionen und Logistikdienstleister',
+        'hero_sub': 'Ihre Qualität entsteht bei Partnern, Frachtführern und Lagerdienstleistern. Genau dort '
+                    'setzt das QM-System an – an den Schnittstellen, nicht an eigener Infrastruktur.',
+
+        'probleme': [
+            ('Sie haben kaum eigene Infrastruktur – und sollen trotzdem Qualität nachweisen',
+             'Lager extern, Transport über Partnerflotte, Vorlauf beim Carrier. Wer ein QM-System aus dem '
+             'Lehrbuch für Fuhrparkbetreiber übernimmt, beschreibt lauter Dinge, die er gar nicht selbst tut.'),
+            ('Verladende Kunden verlangen den Nachweis – oft zusätzlich zu Branchenstandards',
+             'ISO 9001, dazu je nach Ladung GDP für Arzneimittel, ADR-Nachweise für Gefahrgut oder ein '
+               'Lieferantenfragebogen des Kunden. Die Anforderungen überlagern sich, ohne dass jemand sortiert, '
+             'was wofür gebraucht wird.'),
+            ('Schäden und Reklamationen werden geregelt, aber nicht ausgewertet',
+             'Jeder Fall wird gelöst, meist schnell und pragmatisch. Nur entsteht daraus keine Zahl, mit der '
+             'Sie gegenüber Ihren Subunternehmern oder Ihrem Kunden argumentieren könnten.'),
+        ],
+
+        'normtabelle': [
+            ('8.4 Steuerung extern bereitgestellter Prozesse',
+             'Frachtführer und Lagerpartner sind gesetzt, werden aber nicht bewertet',
+             'Liste der eingesetzten Subunternehmer, Bewertungskriterien (Termintreue, Schadenquote, Erreichbarkeit), Anforderungen in der Beauftragung'),
+            ('8.5.1 Steuerung der Dienstleistungserbringung',
+             'Die Auftragskette ist im Kopf der Disposition, nicht im System nachvollziehbar',
+             'Auftragsstatus im ERP/TMS, Ablieferbeleg, Nachweis der Übergabe an jeder Schnittstelle'),
+            ('8.5.4 Erhaltung',
+             'Temperaturgeführte Sendungen ohne durchgängigen Nachweis',
+             'Festgelegte Temperaturgrenzen, Aufzeichnung über die gesamte Kette, geregeltes Vorgehen bei Abweichung'),
+            ('7.2 Kompetenz',
+             'Gefahrgut-, ADR- und GDP-Schulungen sind gemacht, aber nicht geordnet abgelegt',
+             'Schulungsübersicht je Person mit Fälligkeit, Nachweise, Regelung für Gefahrgutbeauftragte'),
+            ('8.7 / 10.2 Abweichungen und Korrekturmaßnahmen',
+             'Transportschäden werden reguliert, aber nicht ausgewertet',
+             'Erfassung je Schadensfall mit Ursache, Maßnahme und Rückmeldung an den Subunternehmer, Auswertung als Kennzahl'),
+            ('4.2 Anforderungen interessierter Parteien',
+             'GDP, ADR, Zollrecht und Kundenfragebögen laufen nebeneinander her',
+             'Übersicht der geltenden Anforderungen mit Zuständigkeit – so wird sichtbar, was zusätzlich zur ISO 9001 gilt'),
+            ('6.1 Risiken und Chancen',
+             'Ausfall eines Carriers oder eines Großkunden ist bekannt, aber nicht behandelt',
+             'Risikoübersicht mit Maßnahmen: Ersatzkapazitäten, Kundenkonzentration, Fahrzeug- und Personalausfall'),
+        ],
+
+        'dokumente': [
+            'Prozessbeschreibung von der Anfrage über die Disposition bis zur Abrechnung',
+            'Subunternehmer- und Carrierbewertung mit Kriterien aus Ihrem Alltag',
+            'Schnittstellenbeschreibung zu Lager-, Transport- und Zolldienstleistern',
+            'Regelung für temperaturgeführte Sendungen inkl. Abweichungsfall',
+            'Schadens- und Reklamationsverfahren mit Auswertung',
+            'Schulungsübersicht (ADR, GDP, Ladungssicherung) mit Fälligkeiten',
+            'Kennzahlen: Termintreue, Schadenquote, Reklamationen je Kunde',
+        ],
+
+        'phasen': [
+            'Wir verfolgen eine typische Sendung von der Anfrage bis zur Rechnung und halten fest, wo Ihre '
+            'Verantwortung anfängt und aufhört. Bei Partnernetzwerken liegt genau dort der Schwerpunkt.',
+            'Wir bauen die Dokumentation um Ihr ERP oder TMS herum. Was das System ohnehin protokolliert, '
+            'wird Nachweis; zusätzliche Listen entstehen nur, wo wirklich nichts vorhanden ist.',
+            'Wir sortieren, was ISO 9001 ist und was aus GDP, ADR oder Kundenfragebögen kommt – damit Sie '
+            'im Audit und im Kundengespräch sauber argumentieren können.',
+        ],
+
+        'faq': [
+            ('Wir haben fast keine eigene Infrastruktur – geht die ISO 9001 trotzdem?',
+             'Ja, und sie passt sogar gut. Bei einem Partnernetzwerk liegt der Dokumentationsschwerpunkt auf '
+             'Schnittstellen und Verantwortlichkeiten, nicht auf eigener Technik. Beschrieben wird, wer was '
+             'übernimmt, was übergeben wird und wie Sie kontrollieren, dass es passiert ist.'),
+            ('Brauchen wir zusätzlich GDP, wenn wir Pharma transportieren?',
+             'Das hängt von Ihren Auftraggebern ab. GDP ist eine eigene Anforderung für Arzneimitteltransporte '
+             'und wird von pharmazeutischen Kunden verlangt. Die ISO 9001 ersetzt sie nicht, liefert aber den '
+             'organisatorischen Unterbau – Dokumentenlenkung, Schulungen, Abweichungsbehandlung –, auf dem GDP aufsetzt.'),
+            ('Zählt ein Lieferantenfragebogen unseres Kunden als Kundenzufriedenheitsmessung?',
+             'Nein, das wird oft verwechselt. Ein solcher Fragebogen ist ein Qualifikationsnachweis, mit dem Ihr '
+             'Kunde SIE bewertet, damit Sie überhaupt beauftragt werden dürfen. Kundenzufriedenheit nach Kapitel 9.1.2 '
+             'ist etwas anderes – dafür brauchen Sie eine eigene, regelmäßige Rückmeldung.'),
+            ('Reicht eine formlose E-Mail als Beauftragung des Subunternehmers?',
+             'Ja, das reicht völlig. Wichtig ist nur, dass die Beauftragung nachvollziehbar ist: was, wann, von wem '
+             'und zu welchen Bedingungen. Ein eigenes System dafür brauchen Sie nicht.'),
+            ('Bei uns ändert sich gerade sehr viel – sollen wir warten, bis alles steht?',
+             'Nein, sonst warten Sie ewig. Der pragmatische Weg: zertifizieren mit einem Maßnahmenplan für das, '
+             'was noch offen ist. Danach haben Sie ein halbes Jahr Ruhe zum Optimieren, und beim Überwachungsaudit '
+             'zeigen Sie, was Sie in der Zwischenzeit umgesetzt haben.'),
+        ],
+
+        'kontext': 'In der Logistik kommt die Anforderung von den verladenden Kunden: Industrie, Handel und Pharma '
+                   'qualifizieren ihre Dienstleister systematisch, und ohne QM-Nachweis fällt ein Anbieter oft schon '
+                   'in der Vorauswahl heraus. Bei öffentlichen Verkehrs- und Infrastrukturaufträgen ist die ISO 9001 '
+                   'regelmäßig Eignungskriterium.',
+        'verwandt': ('https://qm-guru.de/iso-9001-speditionen-logistik/',
+                     'Ausführlich zur ISO 9001 in Speditionen: Ablauf, Kosten und Ausschreibungen'),
+    },
+
+    # ------------------------------------------------------------------ #
+    {
+        'slug': 'bau-montage',
+        'name': 'Bau & Montage',
+        'name_full': 'Bau-, Montage- und Leitungsbaubetriebe',
+        'name_upper': 'BAU & MONTAGE',
+        'icon': '🏗️',
+        'meta_title': 'ISO 9001 für Bau & Montage | Ausschreibungen',
+        'meta_desc': 'ISO 9001 für Tiefbau, Stahlbau, Leitungs- und Netzbau: Ausschreibungen, Nachträge, '
+                     'Nachunternehmer, Arbeitssicherheit. Türöffner zum Direktauftrag. Mit BAFA-Förderung.',
+        'h1': 'ISO 9001 für Bau-, Montage- und Leitungsbaubetriebe',
+        'hero_sub': 'Der Schritt vom Subunternehmer zum Direktauftragnehmer scheitert selten am Können, '
+                    'sondern am Nachweis. Genau den bauen wir auf – entlang Ihrer Baustellenrealität.',
+
+        'probleme': [
+            ('Sie arbeiten als Subunternehmer und kommen an die Direktaufträge nicht heran',
+             'Solange der Hauptauftragnehmer prüft, reicht Ihr Können. Sobald Sie selbst beim Energieversorger '
+             'oder Netzbetreiber anbieten wollen, verlangt der einen Nachweis, dass Sie strukturiert arbeiten. '
+             'Das ist der häufigste Anlass, aus dem Betriebe Ihrer Branche bei uns landen.'),
+            ('Ausschreibungen kosten Tage – und ohne Zertifikat kommen Sie oft nicht in die Wertung',
+             'Bieterportale und Rahmenvertragsvergaben fragen die Eignung standardisiert ab. Wer den QM-Nachweis '
+             'nicht hat, investiert die Kalkulationszeit umsonst.'),
+            ('Bei ständig wechselnden Baustellen ist Dokumentation der Feind',
+             'Wechselnde Orte, wechselnde Trupps, Wetter, improvisierte Bedingungen. Ein QM-System, das nach '
+             'Bürologik gebaut ist, wird auf der Baustelle nicht gelebt – und fliegt im Audit auf.'),
+        ],
+
+        'normtabelle': [
+            ('8.2.2 / 8.2.3 Anforderungen bestimmen und überprüfen',
+             'Lückenhafte Leistungsverzeichnisse werden erst auf der Baustelle zum Problem',
+             'Dokumentierte Prüfung der Ausschreibungsunterlagen vor Angebotsabgabe, Klärung offener Punkte mit dem Auftraggeber, Eventualpositionen nachvollziehbar kalkuliert'),
+            ('8.5.1 Steuerung der Leistungserbringung',
+             'Was auf der Baustelle passiert, ist im Nachhinein nicht belegbar',
+             'Bautagebuch oder Tagesbericht, Aufmaß, Fotodokumentation kritischer Punkte, Abnahmeprotokoll'),
+            ('8.4 Externe Anbieter',
+             'Nachunternehmer werden nach Verfügbarkeit ausgewählt, nicht nach Eignung',
+             'Auswahl- und Bewertungsverfahren, Weitergabe der Auftraggeberanforderungen, dokumentierte Kontrolle der Leistung'),
+            ('7.2 Kompetenz',
+             'Bei wechselnden Tätigkeiten weiß niemand genau, wer was darf',
+             'Pragmatische Qualifikationsmatrix (Ampelsystem genügt) mit Befähigungen, Unterweisungen und Fälligkeiten'),
+            ('7.1.4 / 4.2 Prozessumgebung und rechtliche Anforderungen',
+             'Arbeitssicherheit, Gefährdungsbeurteilung und Gefahrstoffe sind auf mehrere Ordner verteilt',
+             'Nachweis der externen Fachkraft für Arbeitssicherheit, aktuelle Gefährdungsbeurteilungen, Gefahrstoffverzeichnis mit Sicherheitsdatenblättern, SiGeKo-Einbindung'),
+            ('8.6 Freigabe von Produkten und Dienstleistungen',
+             'Materialprüfungen finden statt, die Nachweise sind aber nicht zugeordnet',
+             'Zuordnung von Prüfergebnissen (z. B. Zugproben, Probewürfel, Verdichtungsnachweise) zum jeweiligen Bauabschnitt'),
+            ('8.7 / 10.2 Abweichungen, Nachträge und Mängel',
+             'Nachträge und Mängelrügen laufen als Einzelfälle ohne Auswertung',
+             'Nachtragsmanagement mit Begründung und Freigabe, Mängelerfassung mit Ursache und Maßnahme'),
+        ],
+
+        'dokumente': [
+            'Prozess von der Ausschreibung über die Kalkulation bis zur Abnahme',
+            'Prüfvermerk zu Ausschreibungsunterlagen vor Angebotsabgabe',
+            'Bautagebuch oder Tagesbericht in einer Form, die auf der Baustelle funktioniert',
+            'Nachunternehmerbewertung mit Weitergabe der Auftraggebervorgaben',
+            'Qualifikationsmatrix im Ampelsystem statt Schulungsbürokratie',
+            'Verzahnung mit Arbeitssicherheit: Gefährdungsbeurteilung, Unterweisungen, Gefahrstoffe',
+            'Kennzahlen: Termintreue, Nachtragsquote, Mängel bei Abnahme, Unfallgeschehen',
+        ],
+
+        'phasen': [
+            'Wir nehmen ein typisches Projekt und zeichnen den realen Ablauf nach: Ausschreibung, Kalkulation, '
+            'Baustelleneinrichtung, Ausführung, Aufmaß, Abnahme, Nachträge.',
+            'Die Dokumentation entsteht projektbezogen und in der Form, die auf der Baustelle durchhaltbar ist – '
+            'kurze Berichte, Fotos, ein Aufmaß. Nichts, was einen Bürotag kostet.',
+            'Wir binden Arbeitssicherheit gleich mit ein. In Ihrer Branche fragen Auftraggeber zunehmend nach '
+            'ISO 14001 und ISO 45001 – wer das System von Anfang an gemeinsam denkt, spart sich den zweiten Aufbau.',
+        ],
+
+        'faq': [
+            ('Brauchen wir eine Fachkraft für Arbeitssicherheit bei unter 20 Mitarbeitern?',
+             'Betreuung brauchen Sie in jedem Fall, aber der Umfang ist gering und Sie können sie extern einkaufen. '
+             'Die Erleichterung bei unter 20 Mitarbeitern betrifft vor allem die regelmäßigen Sitzungen des '
+             'Arbeitsschutzausschusses. Für die ISO 9001 zählt, dass jemand benannt ist und dass es Nachweise gibt – '
+             'ein formeller Vertrag ist dafür nicht zwingend.'),
+            ('Sollen wir erst eine einfache Zertifizierung machen und später den TÜV?',
+             'Das kann sinnvoll sein. Das QM-System ist in beiden Fällen dasselbe – Sie bauen es einmal auf. '
+             'Wenn Sie damit in öffentliche Ausschreibungen wollen, prüfen Sie aber vorher die Vergabeunterlagen: '
+             'Dort steht manchmal ausdrücklich „akkreditiert“. Dann lohnt der Umweg nicht.'),
+            ('Lohnt sich das, wenn wir überwiegend als Subunternehmer arbeiten?',
+             'Gerade dann. Der Nachweis ist genau der Hebel, um vom Subunternehmer zum Direktauftragnehmer zu werden – '
+             'und das ist der Schritt, mit dem sich Ihre Marge ändert. Als Sub prüft der Hauptauftragnehmer für Sie mit; '
+             'als Direktauftragnehmer müssen Sie es selbst zeigen können.'),
+            ('Was ist mit ISO 14001 und ISO 45001?',
+             'Energieversorger und Netzbetreiber fragen zunehmend danach, teilweise auch nach SCC. Der Aufbau lohnt '
+             'sich gemeinsam: Sie ergänzen das bestehende Handbuch um Umwelt- und Arbeitsschutzthemen, statt ein '
+             'zweites System danebenzustellen. Managementbewertung, Risikoanalyse und interne Audits bleiben dieselben.'),
+            ('Wie dokumentieren wir Baustellen, ohne dass es die Poliere aufhält?',
+             'So kurz wie möglich und in dem Format, das ohnehin genutzt wird. Ein Tagesbericht mit wenigen Feldern, '
+             'ein paar Fotos vom kritischen Bauabschnitt, das Aufmaß. Entscheidend ist nicht der Umfang, sondern dass '
+             'Abweichungen zu einer nachvollziehbaren Reaktion führen.'),
+        ],
+
+        'kontext': 'Im Bau-, Montage- und Leitungsbau kommt der Anstoß fast immer von Energieversorgern, '
+                   'Netzbetreibern und öffentlichen Auftraggebern. Sie fordern in Bieterportalen und Rahmenverträgen '
+                   'einen QM-Nachweis als Eignungskriterium – und häufig ist die ISO 9001 der Schritt, mit dem ein '
+                   'Betrieb aus der reinen Subunternehmerrolle herauskommt.',
+        'verwandt': None,
+    },
 ]

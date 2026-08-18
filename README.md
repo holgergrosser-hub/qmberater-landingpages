@@ -57,6 +57,42 @@ Google-Bewertungen und die Referenzseite der Hauptdomain verlinkt.
 
 ---
 
+## FAQ-Bibliothek
+
+Unter `public/faq/` liegen acht Themenseiten mit insgesamt 73 Fragen aus echten
+Beratungsgesprächen. Inhalte stehen in `faq_content.py`.
+
+**Herkunft und Regel:** Die Antworten stammen aus der Wissensdatenbank
+(Transkripte). Für die Veröffentlichung wurden sie generalisiert – keine
+Kundennamen, keine Auftraggeber, keine Personennamen, keine Dienstleisternamen.
+Wenn eine Antwort nur mit dem Kontext eines bestimmten Kunden verständlich ist,
+gehört sie nicht auf die Seite.
+
+**Verhältnis zum KI-Bot auf qm-guru.de:** Kein Widerspruch, sondern zwei Rollen.
+Der Bot beantwortet Fragen von Leuten, die schon auf der Seite sind – er ist die
+Conversion-Schicht. Die Bibliothek ist crawlbar, hat eigene URLs, FAQPage-Schema
+und kann von Suchmaschinen und KI-Assistenten zitiert werden – sie ist die
+Akquise-Schicht. Damit nichts auseinanderläuft, gilt: **die Bibliothek ist die
+Quelle**, der Bot zieht daraus. Nicht umgekehrt.
+
+### Halbjährliche Pflege (Februar und August)
+
+Eine wiederkehrende Aufgabe erinnert daran. Durchzugehen sind:
+
+1. **Aktualität** – Aussagen zu Normfassungen, Fristen, Förderbeträgen und
+   Preisen prüfen. Was sich geändert hat, in `faq_content.py` korrigieren.
+2. **Neue Fragen** – aus den Beratungen des letzten Halbjahres die
+   wiederkehrenden Fragen ergänzen (Wissensdatenbank, FAQ-Tab).
+3. **Vertraulichkeit** – erneut gegen Namen prüfen:
+   `grep -oiE "gmbh|ag\b|herr |frau " public/faq/*.html`
+4. **Search Console** – welche FAQ-Seiten ziehen Impressionen? Themen mit
+   Nachfrage ausbauen, tote Themen zusammenlegen.
+5. **Bot-Abgleich** – gibt der KI-Bot auf qm-guru.de zu diesen Fragen noch
+   dieselbe Antwort? Wenn nicht: Bibliothek gewinnt, Bot nachziehen.
+6. Danach `./build.sh` und committen.
+
+---
+
 ## Umzug auf die Hauptdomain
 
 1. In `generate_all_pages.py` `SITE_BASE` auf

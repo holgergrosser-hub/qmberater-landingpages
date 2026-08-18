@@ -44,6 +44,7 @@ import json
 from pathlib import Path
 
 from branchen_content import BRANCHEN
+from faq_content import FAQ_SEITEN
 
 # --------------------------------------------------------------------------- #
 # KONFIGURATION
@@ -125,7 +126,7 @@ def esc(t):
              .replace('>', '&gt;').replace('"', '&quot;'))
 
 
-def head(title, desc, url, extra_schema=None):
+def head(title, desc, url, extra_schema=None, up=''):
     schema_html = ''
     for s in (extra_schema or []):
         schema_html += ('    <script type="application/ld+json">'
@@ -153,8 +154,8 @@ def head(title, desc, url, extra_schema=None):
     <meta name="twitter:title" content="{esc(title)}">
     <meta name="twitter:description" content="{esc(desc)}">
     <meta name="twitter:image" content="{SITE_BASE}/images/og-image.jpg">
-    <link rel="icon" href="images/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="assets/tailwind.css">
+    <link rel="icon" href="{up}images/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="{up}assets/tailwind.css">
 {STYLE}
 {schema_html}</head>
 <body class="bg-white text-gray-900">
@@ -223,13 +224,13 @@ def cta_html():
 '''
 
 
-def footer_html(aktuelle_slug=None):
+def footer_html(aktuelle_slug=None, up=''):
     branchen_links = ''
     for b in BRANCHEN:
         if b['slug'] == aktuelle_slug:
             branchen_links += f'                        <li class="text-white">{esc(b["name"])}</li>\n'
         else:
-            branchen_links += (f'                        <li><a href="{b["slug"]}.html" class="hover:text-white">'
+            branchen_links += (f'                        <li><a href="{up}{b["slug"]}.html" class="hover:text-white">'
                                f'{esc(b["name"])}</a></li>\n')
     return f'''
     <footer class="bg-gray-900 text-gray-400 py-12">
@@ -260,6 +261,7 @@ def footer_html(aktuelle_slug=None):
                 <div>
                     <h3 class="text-white font-bold mb-4">Rechtliches</h3>
                     <ul class="space-y-2 text-sm">
+                        <li><a href="{up}faq/" class="hover:text-white">Fragen &amp; Antworten</a></li>
                         <li><a href="{HAUPTDOMAIN}" class="hover:text-white">Hauptseite</a></li>
                         <li><a href="{IMPRESSUM}" rel="nofollow" class="hover:text-white">Impressum</a></li>
                         <li><a href="{DATENSCHUTZ}" rel="nofollow" class="hover:text-white">Datenschutz</a></li>
@@ -588,8 +590,9 @@ def generate_index_page():
     <section class="py-16 bg-gray-50">
         <div class="max-w-4xl mx-auto px-4">
             <h2 class="text-3xl font-bold mb-3">Fragen, die alle stellen</h2>
-            <p class="text-gray-600 mb-10">Unabhängig von der Branche kommen diese Fragen in fast jeder Beratung –
+            <p class="text-gray-600 mb-8">Unabhängig von der Branche kommen diese Fragen in fast jeder Beratung –
             hier die Antworten, die ich auch am Telefon gebe.</p>
+            <p class="mb-10"><a href="faq/" class="text-blue-700 font-semibold hover:underline">Zur vollständigen Fragensammlung mit über 70 Antworten &rarr;</a></p>
             <div class="space-y-4">{allgemeine_faq}
             </div>
         </div>
@@ -599,12 +602,186 @@ def generate_index_page():
     return head(title, desc, url, schema) + header_html() + body + footer_html(None)
 
 
+
+# --------------------------------------------------------------------------- #
+# FAQ-BIBLIOTHEK  (liegt unter public/faq/)
+# --------------------------------------------------------------------------- #
+
+def faq_nav(aktiv=None, up=''):
+    links = f'<a href="{up}faq/" class="px-3 py-2 rounded-lg hover:bg-blue-50 text-blue-700">Übersicht</a>\n'
+    for f in FAQ_SEITEN:
+        cls = ('px-3 py-2 rounded-lg bg-blue-600 text-white' if f['slug'] == aktiv
+               else 'px-3 py-2 rounded-lg hover:bg-blue-50 text-blue-700')
+        links += f'                <a href="{up}faq/{f["slug"]}.html" class="{cls}">{esc(f["titel"])}</a>\n'
+    return f'''
+    <nav class="bg-white border-b">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap gap-2 text-sm">
+{links}            </div>
+    </nav>
+'''
+
+
+def generate_faq_seite(seite):
+    url = f"{SITE_BASE}/faq/{seite['slug']}.html"
+    schema = [
+        {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "name": seite['titel'],
+            "url": url,
+            "mainEntity": [
+                {"@type": "Question", "name": f,
+                 "acceptedAnswer": {"@type": "Answer", "text": a}}
+                for f, a in seite['fragen']
+            ],
+        },
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "QM-Guru", "item": HAUPTDOMAIN},
+                {"@type": "ListItem", "position": 2, "name": "Fragen & Antworten", "item": f"{SITE_BASE}/faq/"},
+                {"@type": "ListItem", "position": 3, "name": seite['titel'], "item": url},
+            ],
+        },
+    ]
+
+    fragen = ''
+    for i, (frage, antwort) in enumerate(seite['fragen'], start=1):
+        fragen += f'''
+                <article class="bg-white rounded-xl p-8 shadow" id="f{i}">
+                    <h2 class="text-xl font-bold mb-4">{esc(frage)}</h2>
+                    <p class="text-gray-700 leading-relaxed">{esc(antwort)}</p>
+                </article>'''
+
+    inhalt = ''
+    for i, (frage, _) in enumerate(seite['fragen'], start=1):
+        inhalt += f'                <li><a href="#f{i}" class="text-blue-700 hover:underline">{esc(frage)}</a></li>\n'
+
+    weitere = ''
+    for f in FAQ_SEITEN:
+        if f['slug'] == seite['slug']:
+            continue
+        weitere += (f'                <a href="{f["slug"]}.html" class="bg-white border rounded-lg px-4 py-3 '
+                    f'hover:border-blue-500 hover:text-blue-600">{esc(f["titel"])}</a>\n')
+
+    body = f'''
+    <section class="bg-gradient-to-br from-blue-50 to-white py-14">
+        <div class="max-w-4xl mx-auto px-4">
+            <p class="text-sm text-gray-500 mb-3"><a href="./" class="hover:underline">Fragen &amp; Antworten</a> &rsaquo; {esc(seite['titel'])}</p>
+            <h1 class="text-4xl font-bold mb-4">{esc(seite['titel'])}</h1>
+            <p class="text-lg text-gray-700 max-w-3xl">{esc(seite['intro'])}</p>
+        </div>
+    </section>
+
+    <section class="py-10 bg-white border-b">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-sm font-bold uppercase tracking-wide text-gray-500 mb-4">Auf dieser Seite</h2>
+            <ul class="space-y-2 text-sm">
+{inhalt}            </ul>
+        </div>
+    </section>
+
+    <section class="py-14 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 space-y-6">{fragen}
+        </div>
+    </section>
+
+    <section class="py-12">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-xl font-bold mb-6">Weitere Themen</h2>
+            <div class="flex flex-wrap gap-3">
+{weitere}            </div>
+        </div>
+    </section>
+{cta_html()}'''
+
+    return (head(seite['meta_title'], seite['meta_desc'], url, schema, up='../')
+            + header_html() + faq_nav(seite['slug'], up='../') + body
+            + footer_html(None, up='../'))
+
+
+def generate_faq_index():
+    url = f'{SITE_BASE}/faq/'
+    title = 'ISO 9001 – Fragen und Antworten aus der Beratungspraxis'
+    desc = ('Über 70 echte Fragen aus ISO-9001-Beratungen, beantwortet ohne Normdeutsch: '
+            'Dokumentation, Risiken, Lieferanten, Schulungen, Audit.')
+    anzahl = sum(len(f['fragen']) for f in FAQ_SEITEN)
+
+    schema = [{
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": title,
+        "url": url,
+        "isPartOf": {"@type": "WebSite", "name": "QM-Guru", "url": HAUPTDOMAIN},
+        "hasPart": [
+            {"@type": "WebPage", "name": f['titel'], "url": f"{SITE_BASE}/faq/{f['slug']}.html"}
+            for f in FAQ_SEITEN
+        ],
+    }]
+
+    karten = ''
+    for f in FAQ_SEITEN:
+        vorschau = ''
+        for frage, _ in f['fragen'][:3]:
+            vorschau += f'<li class="text-sm text-gray-600">{esc(frage)}</li>'
+        karten += f'''
+                <a href="{f['slug']}.html" class="group bg-white rounded-2xl p-7 shadow hover:shadow-xl transition border-2 border-transparent hover:border-blue-500">
+                    <h2 class="text-lg font-bold mb-3 group-hover:text-blue-600">{esc(f['titel'])}</h2>
+                    <ul class="space-y-1 mb-4 list-disc list-inside">{vorschau}</ul>
+                    <span class="text-blue-600 font-semibold text-sm">{len(f['fragen'])} Fragen ansehen &rarr;</span>
+                </a>'''
+
+    body = f'''
+    <section class="bg-gradient-to-br from-blue-50 to-white py-16">
+        <div class="max-w-4xl mx-auto px-4">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">ISO 9001 – Fragen und Antworten</h1>
+            <p class="text-xl text-gray-700 mb-4">{anzahl} Fragen, die mir Kunden in über dreißig Jahren
+            Beratung immer wieder gestellt haben – beantwortet so, wie ich sie am Telefon beantworte.
+            Ohne Normdeutsch und ohne den Versuch, die Sache größer zu machen, als sie ist.</p>
+            <p class="text-gray-600">Die meisten Antworten laufen auf dasselbe hinaus: weniger Dokumentation,
+            als Sie befürchten – und dafür Nachweise, die im Alltag ohnehin entstehen.</p>
+        </div>
+    </section>
+
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid md:grid-cols-2 gap-6">{karten}
+            </div>
+        </div>
+    </section>
+
+    <section class="py-14">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-2xl font-bold mb-4">Ihre Frage ist nicht dabei?</h2>
+            <p class="text-gray-700 mb-6">Dann stellen Sie sie direkt. Ein Erstgespräch dauert dreißig Minuten
+            und kostet nichts – danach wissen Sie, was in Ihrem Fall zu tun ist, auch wenn Sie sich am Ende
+            gegen eine Zusammenarbeit entscheiden.</p>
+            <a href="{CALENDLY}" class="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700">Termin vereinbaren</a>
+        </div>
+    </section>
+
+    <section class="py-12 bg-gray-50 border-t">
+        <div class="max-w-6xl mx-auto px-4">
+            <h2 class="text-xl font-bold mb-6">ISO 9001 nach Branche</h2>
+            <div class="flex flex-wrap gap-3">
+{"".join(f'                <a href="../{b["slug"]}.html" class="bg-white border rounded-lg px-4 py-3 hover:border-blue-500 hover:text-blue-600">{b["icon"]} {esc(b["name"])}</a>' + chr(10) for b in BRANCHEN)}            </div>
+        </div>
+    </section>
+{cta_html()}'''
+
+    return (head(title, desc, url, schema, up='../') + header_html()
+            + faq_nav(None, up='../') + body + footer_html(None, up='../'))
+
 # --------------------------------------------------------------------------- #
 # SITEMAP / ROBOTS
 # --------------------------------------------------------------------------- #
 
 def generate_sitemap(datum='2026-08-18'):
-    urls = [f'{SITE_BASE}/'] + [f"{SITE_BASE}/{b['slug']}.html" for b in BRANCHEN]
+    urls = ([f'{SITE_BASE}/']
+            + [f"{SITE_BASE}/{b['slug']}.html" for b in BRANCHEN]
+            + [f'{SITE_BASE}/faq/']
+            + [f"{SITE_BASE}/faq/{f['slug']}.html" for f in FAQ_SEITEN])
     out = ['<?xml version="1.0" encoding="UTF-8"?>',
            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     for i, u in enumerate(urls):
@@ -638,6 +815,14 @@ def main():
 
     (out / 'index.html').write_text(generate_index_page(), encoding='utf-8')
     print('  ok  index.html')
+
+    faqdir = out / 'faq'
+    faqdir.mkdir(exist_ok=True)
+    for f in FAQ_SEITEN:
+        (faqdir / f"{f['slug']}.html").write_text(generate_faq_seite(f), encoding='utf-8')
+        print(f"  ok  faq/{f['slug']}.html")
+    (faqdir / 'index.html').write_text(generate_faq_index(), encoding='utf-8')
+    print('  ok  faq/index.html')
 
     (out / 'sitemap.xml').write_text(generate_sitemap(), encoding='utf-8')
     (out / 'robots.txt').write_text(generate_robots(), encoding='utf-8')
